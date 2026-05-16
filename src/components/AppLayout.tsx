@@ -136,16 +136,17 @@ export function AppLayout() {
               <Circle className="h-2 w-2 fill-current live-dot" />
               Markets Open
             </span>
-            <span
-              suppressHydrationWarning
-              className={`px-2 sm:px-2.5 py-1 rounded-full font-mono font-semibold border text-[10px] sm:text-xs ${
-                pnl.abs >= 0
-                  ? "bg-success/15 text-success border-success/30"
-                  : "bg-destructive/15 text-destructive border-destructive/30"
-              }`}
-            >
-              {pnl.abs >= 0 ? "+" : ""}${pnl.abs.toFixed(2)} ({pnl.pct.toFixed(2)}%)
-            </span>
+            {mounted && (
+              <span
+                className={`px-2 sm:px-2.5 py-1 rounded-full font-mono font-semibold border text-[10px] sm:text-xs ${
+                  pnl.abs >= 0
+                    ? "bg-success/15 text-success border-success/30"
+                    : "bg-destructive/15 text-destructive border-destructive/30"
+                }`}
+              >
+                {pnl.abs >= 0 ? "+" : ""}${pnl.abs.toFixed(2)} ({pnl.pct.toFixed(2)}%)
+              </span>
+            )}
             <button className="hidden sm:block p-2 rounded-lg hover:bg-secondary text-muted-foreground"><Bell className="h-4 w-4" /></button>
             <button className="hidden sm:block p-2 rounded-lg hover:bg-secondary text-muted-foreground"><Settings className="h-4 w-4" /></button>
           </div>
