@@ -45,13 +45,29 @@ function Insights() {
   const [aiBriefing, setAiBriefing] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [speaking, setSpeaking] = useState(false);
+  const autoRan = useRef(false);
 
   const diversification = Math.min(100, state.positions.length * 12 + 10);
   const risk = Math.max(20, 100 - Math.abs(pnl.pct) * 4);
   const perf = Math.max(0, Math.min(100, 60 + pnl.pct * 3));
   const overall = Math.round((diversification + risk + perf) / 3);
 
-  const generate = async () => {
+  const handleSpeak = (text: string) => {
+    if (typeof window === "undefined" || !text) return;
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+    speak(text, "en-US");
+    setSpeaking(true);
+    const check = setInterval(() => {
+      if (!window.speechSynthesis.speaking) { setSpeaking(false); clearInterval(check); }
+    }, 400);
+  };
+
+  const generate = async (autoSpeak = false) => {
     setLoading(true); setErr("");
     try {
       const quotes = getQuotes();
@@ -61,22 +77,33 @@ function Insights() {
         const pl = ((cur - p.avgPrice) / p.avgPrice) * 100;
         return `${p.base}: ${p.quantity} sh @ avg $${p.avgPrice.toFixed(2)}, now $${cur.toFixed(2)} (${pl >= 0 ? "+" : ""}${pl.toFixed(2)}%)`;
       }).join("\n");
-      const prompt = `Portfolio for Zahid Hasan:
+      const marketSnap = quotes.map((q) => `${q.base} $${q.price.toFixed(2)} (${q.changePct >= 0 ? "+" : ""}${q.changePct.toFixed(2)}%)`).join(", ");
+      const prompt = `Live portfolio for Zahid Hasan:
 Cash: $${state.cash.toFixed(2)}
 Total value: $${(value + state.cash).toFixed(2)}
 Unrealized P&L: ${pnl.abs >= 0 ? "+" : ""}$${pnl.abs.toFixed(2)} (${pnl.pct.toFixed(2)}%)
 Positions:
-${snapshot}
+${snapshot || "No open positions"}
 
-Write a sharp, concise daily briefing (4-5 short paragraphs). Cover: overall health, biggest mover, key risk, one specific actionable suggestion. Be direct and confident — like a top trading desk analyst.`;
+Live market: ${marketSnap}
+
+Write a sharp, concise daily briefing (4-5 short paragraphs). Cover: overall health, biggest mover from the live market, key risk, one specific actionable suggestion. Be direct and confident — like a top trading desk analyst. Use real numbers from above.`;
       const { reply } = await chat({ data: { prompt } });
       setAiBriefing(reply);
+      if (autoSpeak) handleSpeak(reply);
     } catch (e: any) {
       setErr(e?.message ?? "Failed to generate briefing");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (autoRan.current) return;
+    autoRan.current = true;
+    void generate(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
