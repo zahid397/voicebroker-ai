@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoiceTradeRouteImport } from './routes/voice-trade'
+import { Route as VoiceAssistantRouteImport } from './routes/voice-assistant'
 import { Route as TranslatorRouteImport } from './routes/translator'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as MarketRouteImport } from './routes/market'
@@ -20,6 +21,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const VoiceTradeRoute = VoiceTradeRouteImport.update({
   id: '/voice-trade',
   path: '/voice-trade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VoiceAssistantRoute = VoiceAssistantRouteImport.update({
+  id: '/voice-assistant',
+  path: '/voice-assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TranslatorRoute = TranslatorRouteImport.update({
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/market': typeof MarketRoute
   '/portfolio': typeof PortfolioRoute
   '/translator': typeof TranslatorRoute
+  '/voice-assistant': typeof VoiceAssistantRoute
   '/voice-trade': typeof VoiceTradeRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/market': typeof MarketRoute
   '/portfolio': typeof PortfolioRoute
   '/translator': typeof TranslatorRoute
+  '/voice-assistant': typeof VoiceAssistantRoute
   '/voice-trade': typeof VoiceTradeRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/market': typeof MarketRoute
   '/portfolio': typeof PortfolioRoute
   '/translator': typeof TranslatorRoute
+  '/voice-assistant': typeof VoiceAssistantRoute
   '/voice-trade': typeof VoiceTradeRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/portfolio'
     | '/translator'
+    | '/voice-assistant'
     | '/voice-trade'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/portfolio'
     | '/translator'
+    | '/voice-assistant'
     | '/voice-trade'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/portfolio'
     | '/translator'
+    | '/voice-assistant'
     | '/voice-trade'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   MarketRoute: typeof MarketRoute
   PortfolioRoute: typeof PortfolioRoute
   TranslatorRoute: typeof TranslatorRoute
+  VoiceAssistantRoute: typeof VoiceAssistantRoute
   VoiceTradeRoute: typeof VoiceTradeRoute
 }
 
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/voice-trade'
       fullPath: '/voice-trade'
       preLoaderRoute: typeof VoiceTradeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/voice-assistant': {
+      id: '/voice-assistant'
+      path: '/voice-assistant'
+      fullPath: '/voice-assistant'
+      preLoaderRoute: typeof VoiceAssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/translator': {
@@ -182,18 +202,9 @@ const rootRouteChildren: RootRouteChildren = {
   MarketRoute: MarketRoute,
   PortfolioRoute: PortfolioRoute,
   TranslatorRoute: TranslatorRoute,
+  VoiceAssistantRoute: VoiceAssistantRoute,
   VoiceTradeRoute: VoiceTradeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
