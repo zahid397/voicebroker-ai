@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui-bits";
 import { portfolioValue, totalPnl, usePortfolio } from "@/lib/portfolio";
-import { useQuotes } from "@/lib/market";
-import { Brain, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
+import { useQuotes, getQuotes } from "@/lib/market";
+import { Brain, ShieldCheck, Sparkles, TrendingUp, Loader2, RefreshCw } from "lucide-react";
+import { aiChat } from "@/lib/ai.functions";
 
 export const Route = createFileRoute("/insights")({
   component: Insights,
@@ -37,11 +40,42 @@ function Insights() {
   useQuotes();
   const value = portfolioValue(state.positions);
   const pnl = totalPnl(state.positions);
+  const chat = useServerFn(aiChat);
+  const [aiBriefing, setAiBriefing] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
 
   const diversification = Math.min(100, state.positions.length * 12 + 10);
   const risk = Math.max(20, 100 - Math.abs(pnl.pct) * 4);
   const perf = Math.max(0, Math.min(100, 60 + pnl.pct * 3));
   const overall = Math.round((diversification + risk + perf) / 3);
+
+  const generate = async () => {
+    setLoading(true); setErr("");
+    try {
+      const quotes = getQuotes();
+      const snapshot = state.positions.map((p) => {
+        const q = quotes.find((x) => x.base === p.base);
+        const cur = q?.price ?? p.avgPrice;
+        const pl = ((cur - p.avgPrice) / p.avgPrice) * 100;
+        return `${p.base}: ${p.quantity} sh @ avg $${p.avgPrice.toFixed(2)}, now $${cur.toFixed(2)} (${pl >= 0 ? "+" : ""}${pl.toFixed(2)}%)`;
+      }).join("\n");
+      const prompt = `Portfolio for Zahid Hasan:
+Cash: $${state.cash.toFixed(2)}
+Total value: $${(value + state.cash).toFixed(2)}
+Unrealized P&L: ${pnl.abs >= 0 ? "+" : ""}$${pnl.abs.toFixed(2)} (${pnl.pct.toFixed(2)}%)
+Positions:
+${snapshot}
+
+Write a sharp, concise daily briefing (4-5 short paragraphs). Cover: overall health, biggest mover, key risk, one specific actionable suggestion. Be direct and confident — like a top trading desk analyst.`;
+      const { reply } = await chat({ data: { prompt } });
+      setAiBriefing(reply);
+    } catch (e: any) {
+      setErr(e?.message ?? "Failed to generate briefing");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -56,32 +90,41 @@ function Insights() {
       </Card>
 
       <Card className="lg:col-span-2">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
           <Brain className="h-4 w-4 text-primary" />
           <h3 className="font-semibold">AI Daily Briefing</h3>
-          <span className="ml-auto text-[10px] px-2 py-0.5 rounded bg-primary/15 text-primary uppercase tracking-wider">Gemini</span>
+          <span className="text-[10px] px-2 py-0.5 rounded bg-primary/15 text-primary uppercase tracking-wider">Lovable AI</span>
+          <button
+            onClick={generate}
+            disabled={loading}
+            className="ml-auto inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold hover:opacity-90 disabled:opacity-50"
+          >
+            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? "Generating..." : aiBriefing ? "Regenerate" : "Generate AI Briefing"}
+          </button>
         </div>
+        {err && <div className="mb-3 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive">{err}</div>}
         <div className="text-sm leading-relaxed text-foreground/90 space-y-3">
-          <p>
-            Good morning, Zahid. Your portfolio is currently worth <b className="font-mono">${(value + state.cash).toFixed(2)}</b>, with an unrealized P&L of{" "}
-            <b className={`font-mono ${pnl.abs >= 0 ? "text-success" : "text-destructive"}`}>
-              {pnl.abs >= 0 ? "+" : ""}${pnl.abs.toFixed(2)} ({pnl.pct.toFixed(2)}%)
-            </b>.
-          </p>
-          <p>
-            <Sparkles className="inline h-3.5 w-3.5 text-accent mr-1" />
-            <b>NVDA</b> continues to lead your gainers thanks to sustained AI infrastructure demand.
-            Consider trimming a partial position above $900 to lock in gains.
-          </p>
-          <p>
-            <TrendingUp className="inline h-3.5 w-3.5 text-success mr-1" />
-            Your <b>SPY</b> allocation provides stable beta exposure. The agent recommends maintaining current weight while
-            broader market volatility remains contained.
-          </p>
-          <p>
-            Risk score sits at <b className="font-mono">{risk.toFixed(0)}/100</b>. To improve diversification, consider exposure
-            outside of US large-cap tech — gold or treasury proxies via xStocks would lower correlation.
-          </p>
+          {aiBriefing ? (
+            <div className="whitespace-pre-wrap">{aiBriefing}</div>
+          ) : (
+            <>
+              <p>
+                Good morning, Zahid. Your portfolio is currently worth <b className="font-mono">${(value + state.cash).toFixed(2)}</b>, with an unrealized P&L of{" "}
+                <b className={`font-mono ${pnl.abs >= 0 ? "text-success" : "text-destructive"}`}>
+                  {pnl.abs >= 0 ? "+" : ""}${pnl.abs.toFixed(2)} ({pnl.pct.toFixed(2)}%)
+                </b>.
+              </p>
+              <p>
+                <Sparkles className="inline h-3.5 w-3.5 text-accent mr-1" />
+                Tap <b>Generate AI Briefing</b> for a fresh, live analysis from the Lovable AI engine.
+              </p>
+              <p>
+                <TrendingUp className="inline h-3.5 w-3.5 text-success mr-1" />
+                The AI will analyze every position, your cash buffer, and current quotes to deliver a concrete recommendation.
+              </p>
+            </>
+          )}
         </div>
       </Card>
 

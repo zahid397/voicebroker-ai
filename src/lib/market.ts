@@ -24,8 +24,11 @@ const seed: Omit<Quote, "change" | "changePct" | "history">[] = [
   { symbol: "QQQ.x", base: "QQQ", name: "QQQ ETF", price: 462.95 },
 ];
 
-let quotes: Quote[] = seed.map((s) => {
-  const hist = Array.from({ length: 30 }, (_, i) => s.price * (1 + Math.sin(i / 4) * 0.01 + (Math.random() - 0.5) * 0.005));
+// Deterministic seed history (SSR-safe — no Math.random at module init)
+let quotes: Quote[] = seed.map((s, si) => {
+  const hist = Array.from({ length: 30 }, (_, i) =>
+    +(s.price * (1 + Math.sin((i + si) / 4) * 0.01 + Math.cos((i * (si + 1)) / 7) * 0.004)).toFixed(2)
+  );
   hist.push(s.price);
   const open = hist[0];
   return {
