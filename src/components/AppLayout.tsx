@@ -85,7 +85,9 @@ export function AppLayout() {
         </div>
         <div className="mt-3 flex items-baseline justify-between">
           <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Balance</span>
-          <span suppressHydrationWarning className="text-sm font-mono font-semibold">${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+          <span className="text-sm font-mono font-semibold">
+            {mounted ? `$${total.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "—"}
+          </span>
         </div>
       </div>
     </>
