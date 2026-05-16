@@ -20,6 +20,7 @@ const nav = [
 export function AppLayout() {
   const loc = useLocation();
   const state = usePortfolio();
+  const mounted = useMounted();
   const value = portfolioValue(state.positions);
   const pnl = totalPnl(state.positions);
   const total = value + state.cash;
