@@ -11,6 +11,8 @@ export function createRecognizer(handlers: {
   onError?: (err: string) => void;
   onEnd?: () => void;
   lang?: string;
+  continuous?: boolean;
+  autoRestart?: boolean;
 }): SpeechController {
   if (typeof window === "undefined") return { start: () => {}, stop: () => {}, supported: false };
   const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -21,7 +23,7 @@ export function createRecognizer(handlers: {
 
   const build = () => {
     const r = new SR();
-    r.continuous = true;
+    r.continuous = handlers.continuous ?? true;
     r.interimResults = true;
     r.lang = handlers.lang ?? "en-US";
     r.onresult = (e: any) => {
@@ -38,7 +40,7 @@ export function createRecognizer(handlers: {
     r.onerror = (e: any) => handlers.onError?.(e.error || "speech_error");
     r.onend = () => {
       handlers.onEnd?.();
-      if (!stopped) { try { r.start(); } catch {} }
+      if (!stopped && (handlers.autoRestart ?? true)) { try { r.start(); } catch {} }
     };
     return r;
   };
