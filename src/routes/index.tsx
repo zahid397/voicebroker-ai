@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Wallet, TrendingUp, Briefcase, Mic, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Wallet, TrendingUp, Briefcase, Mic, ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react";
 import { Card, Sparkline } from "@/components/ui-bits";
 import { usePortfolio, portfolioValue, totalPnl } from "@/lib/portfolio";
 import { useQuotes, getQuote } from "@/lib/market";
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
+import { useMounted } from "@/hooks/use-mounted";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
