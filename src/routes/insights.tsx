@@ -169,11 +169,11 @@ Write a sharp, concise daily briefing (4-5 short paragraphs). Cover: overall hea
         <h3 className="font-semibold mb-3">Agent Architecture</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-center text-xs">
           {[
-            { t: "Voice Input", s: "Web Speech / Speechmatics" },
-            { t: "Intent Parser", s: "Gemini 1.5 Flash" },
-            { t: "Market Data", s: "Kraken xStocks API" },
+            { t: "Voice Input", s: "Web Speech API" },
+            { t: "Intent Parser", s: "Gemini 2.5 Pro" },
+            { t: "Market Data", s: "Live xStock Feed" },
             { t: "Trade Engine", s: "Demo Executor" },
-            { t: "Confirmation", s: "TTS Voice" },
+            { t: "Voice Output", s: "Speech Synthesis" },
           ].map((b, i) => (
             <div key={i} className="card-surface p-3">
               <div className="text-sm font-semibold brand-text">{b.t}</div>
