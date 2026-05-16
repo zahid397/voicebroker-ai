@@ -17,11 +17,23 @@ export const Route = createFileRoute("/")({
 function fmt(n: number) { return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 function Dashboard() {
+  const mounted = useMounted();
   const state = usePortfolio();
   useQuotes(); // subscribe to live prices
   const value = portfolioValue(state.positions);
   const pnl = totalPnl(state.positions);
   const total = value + state.cash;
+
+  if (!mounted) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="text-sm">Loading live market data...</span>
+        </div>
+      </div>
+    );
+  }
 
   const perfData = useMemo(() => {
     // build a synthetic 7d curve based on aggregated history
