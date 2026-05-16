@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
-  LayoutDashboard, Mic, PieChart, TrendingUp, History, Brain, Bell, Settings, Circle, Menu, X, Languages,
+  LayoutDashboard, Mic, PieChart, TrendingUp, History, Brain, Bell, Settings, Circle, Menu, X, Languages, Headphones,
 } from "lucide-react";
 import { portfolioValue, totalPnl, usePortfolio } from "@/lib/portfolio";
 import { useMounted } from "@/hooks/use-mounted";
@@ -10,6 +10,7 @@ import { useMounted } from "@/hooks/use-mounted";
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/voice-trade", label: "Voice Trade", icon: Mic, badge: "LIVE" },
+  { to: "/voice-assistant", label: "Voice AI Help", icon: Headphones, badge: "AI" },
   { to: "/translator", label: "AI Translator", icon: Languages, badge: "NEW" },
   { to: "/portfolio", label: "Portfolio", icon: PieChart },
   { to: "/market", label: "Market Data", icon: TrendingUp },
@@ -147,8 +148,11 @@ export function AppLayout() {
                 {pnl.abs >= 0 ? "+" : ""}${pnl.abs.toFixed(2)} ({pnl.pct.toFixed(2)}%)
               </span>
             )}
-            <button className="hidden sm:block p-2 rounded-lg hover:bg-secondary text-muted-foreground"><Bell className="h-4 w-4" /></button>
-            <button className="hidden sm:block p-2 rounded-lg hover:bg-secondary text-muted-foreground"><Settings className="h-4 w-4" /></button>
+          <Link to="/voice-assistant" className="hidden sm:grid p-2 rounded-lg hover:bg-secondary text-muted-foreground" aria-label="Open voice AI help">
+            <Headphones className="h-4 w-4" />
+          </Link>
+          <Link to="/insights" className="hidden sm:grid p-2 rounded-lg hover:bg-secondary text-muted-foreground" aria-label="Open alerts and insights"><Bell className="h-4 w-4" /></Link>
+          <Link to="/portfolio" className="hidden sm:grid p-2 rounded-lg hover:bg-secondary text-muted-foreground" aria-label="Open portfolio settings"><Settings className="h-4 w-4" /></Link>
           </div>
         </header>
 
