@@ -5,6 +5,7 @@ import {
   LayoutDashboard, Mic, PieChart, TrendingUp, History, Brain, Bell, Settings, Circle, Menu, X, Languages,
 } from "lucide-react";
 import { portfolioValue, totalPnl, usePortfolio } from "@/lib/portfolio";
+import { useMounted } from "@/hooks/use-mounted";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
