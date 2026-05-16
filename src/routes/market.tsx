@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { Card, Sparkline } from "@/components/ui-bits";
 import { useQuotes } from "@/lib/market";
 import { executeTrade } from "@/lib/portfolio";
-import { ArrowUpRight, ArrowDownRight, Zap } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, CheckCircle2, AlertTriangle, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/market")({
   component: Market,
@@ -11,9 +12,24 @@ export const Route = createFileRoute("/market")({
 
 function Market() {
   const quotes = useQuotes();
+  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const quickTrade = (symbol: string, action: "BUY" | "SELL") => {
+    const result = executeTrade({ symbol, action, dollarAmount: 100, trigger: "manual" });
+    setNotice(result.ok
+      ? { ok: true, text: `${action} filled: ${result.trade.quantity.toFixed(4)} ${result.trade.symbol} for $${result.trade.total.toFixed(2)}` }
+      : { ok: false, text: result.error });
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">Live xStock quotes · streaming via Kraken (simulated in demo mode)</p>
+      {notice && (
+        <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${notice.ok ? "border-success/30 bg-success/10 text-success" : "border-destructive/30 bg-destructive/10 text-destructive"}`}>
+          {notice.ok ? <CheckCircle2 className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+          {notice.text}
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {quotes.map((q, i) => {
           const up = q.changePct >= 0;
@@ -40,11 +56,11 @@ function Market() {
                   </div>
                 </div>
                 <div className="flex gap-1.5">
-                  <button onClick={() => executeTrade({ symbol: q.symbol, action: "BUY", dollarAmount: 100, trigger: "manual" })}
+                  <button onClick={() => quickTrade(q.symbol, "BUY")}
                     className="px-3 py-1.5 rounded-md text-xs font-semibold bg-success/15 text-success hover:bg-success/25 border border-success/30 transition">
                     BUY
                   </button>
-                  <button onClick={() => executeTrade({ symbol: q.symbol, action: "SELL", dollarAmount: 100, trigger: "manual" })}
+                  <button onClick={() => quickTrade(q.symbol, "SELL")}
                     className="px-3 py-1.5 rounded-md text-xs font-semibold bg-destructive/15 text-destructive hover:bg-destructive/25 border border-destructive/30 transition">
                     SELL
                   </button>
