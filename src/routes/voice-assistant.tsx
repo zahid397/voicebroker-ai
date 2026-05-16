@@ -139,9 +139,13 @@ function VoiceAssistantPage() {
             </motion.h2>
             <p className="text-sm text-muted-foreground mt-1">Backend-powered assistant for app help, buttons, portfolio and demo trading guidance.</p>
           </div>
-          <select value={lang} onChange={(e) => setLang(e.target.value)} className="bg-secondary/60 border border-border rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary">
-            {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
-          </select>
+          <div className="flex flex-wrap justify-end gap-1 max-w-[150px]">
+            {LANGS.slice(0, 4).map((l) => (
+              <button key={l.code} onClick={() => setLang(l.code)} className={`rounded-md border px-2 py-1 text-[10px] transition ${lang === l.code ? "border-primary bg-primary/15 text-primary" : "border-border bg-secondary/40 text-muted-foreground"}`}>
+                {l.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto scroll-thin space-y-3 pr-1">
