@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Brain, Zap, CheckCircle2, AlertTriangle, Volume2 } from "lucide-react";
+import { Mic, MicOff, Brain, Zap, CheckCircle2, AlertTriangle, Volume2, Headphones } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui-bits";
 import { createRecognizer, speak } from "@/lib/speech";
 import { parseIntent, intentSummary, type Intent } from "@/lib/intent";
@@ -234,6 +235,9 @@ function VoiceTrade() {
 
         <div className="mt-4 flex items-center gap-2 text-[11px] text-muted-foreground">
           <Volume2 className="h-3 w-3" /> Voice confirmation enabled · Demo mode (no real funds)
+          <Link to="/voice-assistant" className="ml-auto inline-flex items-center gap-1 text-primary hover:underline">
+            <Headphones className="h-3 w-3" /> Voice AI help
+          </Link>
         </div>
       </Card>
     </div>
