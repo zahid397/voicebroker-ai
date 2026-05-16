@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Wallet, TrendingUp, Briefcase, Mic, ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react";
+import { Wallet, TrendingUp, Briefcase, Mic, ArrowUpRight, ArrowDownRight, Loader2, Check } from "lucide-react";
 import { Card, Sparkline } from "@/components/ui-bits";
 import { usePortfolio, portfolioValue, totalPnl } from "@/lib/portfolio";
 import { useQuotes, getQuote } from "@/lib/market";
@@ -19,6 +19,11 @@ function fmt(n: number) { return n.toLocaleString(undefined, { minimumFractionDi
 function Dashboard() {
   const mounted = useMounted();
   const state = usePortfolio();
+  const [alerts, setAlerts] = useState([
+    { sym: "NVDA", cond: "Price above $900", action: "Auto-sell 0.25 shares", on: true },
+    { sym: "TSLA", cond: "Drop > 5%", action: "Notify", on: true },
+    { sym: "SPY", cond: "Volatility spike", action: "Hedge", on: false },
+  ]);
   useQuotes(); // subscribe to live prices
   const value = portfolioValue(state.positions);
   const pnl = totalPnl(state.positions);
@@ -170,19 +175,22 @@ function Dashboard() {
         <Card delay={0.28}>
           <h3 className="font-semibold mb-3">AI Market Alerts</h3>
           <div className="space-y-2">
-            {[
-              { sym: "NVDA", cond: "Price above $900", action: "Auto-sell 0.25 shares", on: true },
-              { sym: "TSLA", cond: "Drop > 5%", action: "Notify", on: true },
-              { sym: "SPY", cond: "Volatility spike", action: "Hedge", on: false },
-            ].map((a) => (
-              <div key={a.sym} className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-secondary/40 border border-border">
+            {alerts.map((a) => (
+              <div key={a.sym} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-secondary/40 border border-border">
                 <div>
                   <div className="text-sm font-semibold">{a.sym} <span className="text-muted-foreground font-normal text-xs ml-1">· {a.cond}</span></div>
                   <div className="text-[11px] text-muted-foreground">{a.action}</div>
                 </div>
-                <span className={`h-5 w-9 rounded-full relative transition ${a.on ? "bg-primary" : "bg-muted"}`}>
-                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-foreground transition ${a.on ? "left-4" : "left-0.5"}`} />
-                </span>
+                <button
+                  onClick={() => setAlerts((prev) => prev.map((item) => item.sym === a.sym ? { ...item, on: !item.on } : item))}
+                  className={`h-8 w-14 rounded-full relative transition shrink-0 ${a.on ? "bg-primary" : "bg-muted"}`}
+                  aria-label={`${a.on ? "Disable" : "Enable"} ${a.sym} alert`}
+                  aria-pressed={a.on}
+                >
+                  <span className={`absolute top-1 h-6 w-6 rounded-full bg-foreground transition grid place-items-center ${a.on ? "left-7" : "left-1"}`}>
+                    {a.on && <Check className="h-3 w-3 text-primary" />}
+                  </span>
+                </button>
               </div>
             ))}
           </div>
