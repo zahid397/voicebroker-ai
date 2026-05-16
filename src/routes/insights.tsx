@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui-bits";
 import { portfolioValue, totalPnl, usePortfolio } from "@/lib/portfolio";
-import { useQuotes } from "@/lib/market";
-import { Brain, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
+import { useQuotes, getQuotes } from "@/lib/market";
+import { Brain, ShieldCheck, Sparkles, TrendingUp, Loader2, RefreshCw } from "lucide-react";
+import { aiChat } from "@/lib/ai.functions";
 
 export const Route = createFileRoute("/insights")({
   component: Insights,
