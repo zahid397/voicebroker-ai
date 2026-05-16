@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Wallet, TrendingUp, Briefcase, Mic, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Wallet, TrendingUp, Briefcase, Mic, ArrowUpRight, ArrowDownRight, Loader2 } from "lucide-react";
 import { Card, Sparkline } from "@/components/ui-bits";
 import { usePortfolio, portfolioValue, totalPnl } from "@/lib/portfolio";
 import { useQuotes, getQuote } from "@/lib/market";
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
+import { useMounted } from "@/hooks/use-mounted";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/")({
 function fmt(n: number) { return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 function Dashboard() {
+  const mounted = useMounted();
   const state = usePortfolio();
   useQuotes(); // subscribe to live prices
   const value = portfolioValue(state.positions);
@@ -23,7 +25,6 @@ function Dashboard() {
   const total = value + state.cash;
 
   const perfData = useMemo(() => {
-    // build a synthetic 7d curve based on aggregated history
     const len = 30;
     return Array.from({ length: len }, (_, i) => {
       const t = i / (len - 1);
@@ -38,6 +39,17 @@ function Dashboard() {
     const qb = getQuote(b.base)?.price ?? 0;
     return (qb * b.quantity) - (qa * a.quantity);
   });
+
+  if (!mounted) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="text-sm">Loading live market data...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
