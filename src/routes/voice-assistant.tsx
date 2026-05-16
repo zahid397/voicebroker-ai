@@ -99,6 +99,8 @@ function VoiceAssistantPage() {
     }
     const rec = createRecognizer({
       lang,
+      continuous: false,
+      autoRestart: false,
       onPartial: setPartial,
       onFinal: (text) => {
         setListening(false);
