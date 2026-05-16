@@ -5,7 +5,7 @@ import { Wallet, TrendingUp, Briefcase, Mic, ArrowUpRight, ArrowDownRight, Loade
 import { Card, Sparkline } from "@/components/ui-bits";
 import { usePortfolio, portfolioValue, totalPnl } from "@/lib/portfolio";
 import { useQuotes, getQuote } from "@/lib/market";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMounted } from "@/hooks/use-mounted";
 
