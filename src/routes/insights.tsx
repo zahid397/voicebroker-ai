@@ -123,12 +123,21 @@ Write a sharp, concise daily briefing (4-5 short paragraphs). Cover: overall hea
           <h3 className="font-semibold">AI Daily Briefing</h3>
           <span className="text-[10px] px-2 py-0.5 rounded bg-primary/15 text-primary uppercase tracking-wider">Lovable AI</span>
           <button
-            onClick={generate}
+            onClick={() => handleSpeak(aiBriefing)}
+            disabled={!aiBriefing}
+            className="ml-auto inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-border bg-secondary/40 hover:bg-secondary disabled:opacity-40"
+            aria-label={speaking ? "Stop voice" : "Speak briefing"}
+          >
+            {speaking ? <VolumeX className="h-3.5 w-3.5 text-accent" /> : <Volume2 className="h-3.5 w-3.5 text-primary" />}
+            {speaking ? "Stop" : "Speak"}
+          </button>
+          <button
+            onClick={() => void generate(true)}
             disabled={loading}
-            className="ml-auto inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold hover:opacity-90 disabled:opacity-50"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-            {loading ? "Generating..." : aiBriefing ? "Regenerate" : "Generate AI Briefing"}
+            {loading ? "Generating..." : aiBriefing ? "Regenerate" : "Generate"}
           </button>
         </div>
         {err && <div className="mb-3 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive">{err}</div>}
