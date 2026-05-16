@@ -10,6 +10,7 @@ export function createRecognizer(handlers: {
   onFinal: (text: string) => void;
   onError?: (err: string) => void;
   onEnd?: () => void;
+  lang?: string;
 }): SpeechController {
   if (typeof window === "undefined") return { start: () => {}, stop: () => {}, supported: false };
   const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -22,7 +23,7 @@ export function createRecognizer(handlers: {
     const r = new SR();
     r.continuous = true;
     r.interimResults = true;
-    r.lang = "en-US";
+    r.lang = handlers.lang ?? "en-US";
     r.onresult = (e: any) => {
       let interim = "";
       let finalText = "";
@@ -49,10 +50,11 @@ export function createRecognizer(handlers: {
   };
 }
 
-export function speak(text: string) {
+export function speak(text: string, lang = "en-US") {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   try {
     const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
     u.rate = 1.05;
     u.pitch = 1;
     window.speechSynthesis.cancel();
