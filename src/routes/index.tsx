@@ -24,19 +24,7 @@ function Dashboard() {
   const pnl = totalPnl(state.positions);
   const total = value + state.cash;
 
-  if (!mounted) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="text-sm">Loading live market data...</span>
-        </div>
-      </div>
-    );
-  }
-
   const perfData = useMemo(() => {
-    // build a synthetic 7d curve based on aggregated history
     const len = 30;
     return Array.from({ length: len }, (_, i) => {
       const t = i / (len - 1);
@@ -51,6 +39,17 @@ function Dashboard() {
     const qb = getQuote(b.base)?.price ?? 0;
     return (qb * b.quantity) - (qa * a.quantity);
   });
+
+  if (!mounted) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="text-sm">Loading live market data...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
