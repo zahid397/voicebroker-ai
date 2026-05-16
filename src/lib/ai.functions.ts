@@ -2,13 +2,22 @@ import { createServerFn } from "@tanstack/react-start";
 
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
-async function callAI(messages: Array<{ role: string; content: string }>, model = "google/gemini-3-flash-preview") {
+async function callAI(
+  messages: Array<{ role: string; content: string }>,
+  model = "google/gemini-2.5-pro",
+  opts: { temperature?: number; maxOutputTokens?: number } = {},
+) {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY not configured");
   const res = await fetch(GATEWAY, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model, messages }),
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature: opts.temperature ?? 0.7,
+      max_tokens: opts.maxOutputTokens ?? 8192,
+    }),
   });
   if (!res.ok) {
     const text = await res.text();
